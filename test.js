@@ -7,7 +7,7 @@ async function shouldGetUser () {
   if (!user) {
     throw new Error('User is not returned')
   }
-  console.log('shouldGetUser succeded')
+  console.log('✓ shouldGetUser succeded')
 }
 
 async function shouldGetUserTwice () {
@@ -28,31 +28,35 @@ async function shouldGetUserTwice () {
   if (now - before > 2000) {
     throw new Error('Request takes too long')
   }
-  console.log('shouldGetUserTwice succeded')
+  console.log('✓ shouldGetUserTwice succeded')
 }
 
 async function shouldGetUserInInterval () {
   const store = new Store()
 
-  console.log(Date.now() / 1000)
+  console.log('start', Date.now() / 1000)
   // should take 2seconds
   store.get(1)
-  .then(() => console.log(Date.now() / 1000))
+  .then(() => console.log('first call', Date.now() / 1000))
 
   // wait 1 second
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await waitFor(1000)
   // make the second call
   store.get(1)
-  .then(() => console.log(Date.now() / 1000))
+  .then(() => console.log('2nd call', Date.now() / 1000))
 }
 
 async function runTests () {
   try {
-    // await shouldGetUser()
-    // await shouldGetUserTwice()
+    await shouldGetUser()
+    await shouldGetUserTwice()
     await shouldGetUserInInterval()
   } catch (err) {
     console.log('Tests failed', err)
   }
 }
 runTests()
+
+async function waitFor (ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms))
+}

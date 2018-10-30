@@ -3,6 +3,7 @@
  * it takes time.
  */
 async function findUser (id) {
+  console.log('** costly call to db for', id, '**')
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve({
