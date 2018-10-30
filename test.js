@@ -34,22 +34,53 @@ async function shouldGetUserTwice () {
 async function shouldGetUserInInterval () {
   const store = new Store()
 
-  console.log('start', Date.now() / 1000)
+  const promises = []
+  const initialTime = Date.now()
+  let firstCallEnded, secondCallEnded
+
   // should take 2seconds
-  store.get(1)
-  .then(() => console.log('first call', Date.now() / 1000))
+  const prom1 = store.get(1)
+  .then((user) => {
+    firstCallEnded = Date.now()
+    return user
+  })
+  promises.push(prom1)
 
   // wait 1 second
   await waitFor(1000)
   // make the second call
-  store.get(1)
-  .then(() => console.log('2nd call', Date.now() / 1000))
+  const secondTime = Date.now()
+  const prom2 = store.get(1)
+  .then((user) => {
+    secondCallEnded = Date.now()
+    return user
+  })
+  promises.push(prom2)
+
+  const [user1, user2] = await Promise.all(promises)
+
+  const firstCallDuration = firstCallEnded - initialTime
+  const secondCallDuration = secondCallEnded - secondTime
+
+  if (firstCallDuration > 2010) {
+    throw new Error('first call took too much time')
+  }
+
+  if (secondCallDuration > 1100) {
+    throw new Error('second call took too much time')
+  }
+
+  if (user1 !== user2) {
+    throw new Error('user1 != user2')
+  }
+
+  console.log('✓ shouldGetUserInInterval succeded')
 }
 
 async function runTests () {
   try {
-    await shouldGetUser()
-    await shouldGetUserTwice()
+    // await shouldGetUser()
+    // await shouldGetUserTwice()
     await shouldGetUserInInterval()
   } catch (err) {
     console.log('Tests failed', err)

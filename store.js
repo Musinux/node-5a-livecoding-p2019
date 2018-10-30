@@ -16,8 +16,8 @@ async function findUser (id) {
 class Store {
   constructor () {
     this._users = []
+    this._promises = {}
   }
-
   /**
    * Step 1: if the user is already in our
    * _users array, don't get it another time
@@ -33,11 +33,21 @@ class Store {
     if (existingUser) {
       return existingUser
     }
-    // check in the database
-    const newUser = await findUser(id)
 
-    this._users.push(newUser)
-    return newUser
+    if (this._promises[id]) {
+      return this._promises[id]
+    }
+
+    // check in the database
+    const newUserPromise = findUser(id)
+    this._promises[id] = newUserPromise
+
+    return newUserPromise
+    .then((newUser) => {
+      this._users.push(newUser)
+      delete this._promises[id]
+      return newUser
+    })
   }
 }
 
